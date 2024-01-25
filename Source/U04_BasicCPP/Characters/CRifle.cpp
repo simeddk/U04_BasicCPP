@@ -17,6 +17,8 @@ ACRifle::ACRifle()
 
 	CHelpers::GetAsset(&GrabMontage, "/Game/Character/Animations/Rifle/Rifle_Grab_Montage");
 	CHelpers::GetAsset(&UngrabMontage, "/Game/Character/Animations/Rifle/Rifle_Ungrab_Montage");
+
+	CHelpers::GetClass<UCameraShake>(&ShakeClass, "Blueprint'/Game/Player/BP_Shake.BP_Shake_C'");
 }
 
 ACRifle* ACRifle::Spawn(UWorld* InWorld, ACharacter* InOwner)
@@ -68,16 +70,15 @@ void ACRifle::Tick(float DeltaTime)
 			{
 				if (otherComp->BodyInstance.bSimulatePhysics == true)
 				{
-					//Todo.
-					//AimWidget->OnTarget() : RED
+					rifleCharacter->OnTarget();
+
 					return;
 				}
 			}
 		}
 	}
 
-	//else
-	//AimWidget->OffTarget() : WHITE
+	rifleCharacter->OffTarget();
 }
 
 
@@ -131,6 +132,65 @@ void ACRifle::Begin_Aim()
 void ACRifle::End_Aim()
 {
 	bAiming = false;
+}
+
+void ACRifle::Begin_Fire()
+{
+	CheckFalse(bEquipped);
+	CheckTrue(bEquipping);
+	CheckFalse(bAiming);
+	CheckTrue(bFiring);
+
+	bFiring = true;
+
+	Firing();
+}
+
+void ACRifle::End_Fire()
+{
+	bFiring = false;
+}
+
+void ACRifle::Firing()
+{
+	//Play Camera Shake
+	APlayerController* controller = OwnerCharacter->GetController<APlayerController>();
+	if (!!controller)
+		controller->PlayerCameraManager->PlayCameraShake(ShakeClass);
+
+	//LineTrace for AddImpulse
+	IIRifle* rifleCharacter = Cast<IIRifle>(OwnerCharacter);
+	CheckNull(rifleCharacter);
+
+	FVector start, end, direction;
+	rifleCharacter->GetAimInfo(start, end, direction);
+
+	FCollisionQueryParams queryParam;
+	queryParam.AddIgnoredActor(this);
+	queryParam.AddIgnoredActor(OwnerCharacter);
+
+	FHitResult hitResult;
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, queryParam))
+	{
+		AStaticMeshActor* otherActor = Cast<AStaticMeshActor>(hitResult.GetActor());
+		if (!!otherActor)
+		{
+			UStaticMeshComponent* otherComp = Cast<UStaticMeshComponent>(otherActor->GetRootComponent());
+			if (!!otherComp)
+			{
+				if (otherComp->BodyInstance.bSimulatePhysics == true)
+				{
+					direction = otherActor->GetActorLocation() - OwnerCharacter->GetActorLocation();
+					direction.Normalize();
+
+					otherComp->AddImpulseAtLocation(direction * 3000.f, OwnerCharacter->GetActorLocation());
+
+					return;
+				} //if (bSimulatePhysics)
+			} //if ( Cast<UStaticMeshComponent>)
+		} // if (Cast<AStaticMeshActor>)
+	} //if (LineTrace)
+
 }
 
 

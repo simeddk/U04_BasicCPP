@@ -37,7 +37,10 @@ public:
 	void Begin_Aim();
 	void End_Aim();
 
+	void Begin_Fire();
+	void End_Fire();
 
+	void Firing();
 
 
 private:
@@ -53,6 +56,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 		class UAnimMontage* UngrabMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		TSubclassOf<UCameraShake> ShakeClass;
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
@@ -63,4 +69,5 @@ private:
 	bool bEquipping; //Is Playing Montages
 	bool bEquipped;  //Used In AnimInstance
 	bool bAiming;	 //Is R-Button Pressed
+	bool bFiring;	 //Is L-Button Pressed
 };

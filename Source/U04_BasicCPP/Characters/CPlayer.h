@@ -24,6 +24,9 @@ public:
 	FORCEINLINE ACRifle* GetRifle() override { return Rifle; }
 	void GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutAimDirection);
 
+	void OnTarget() override;
+	void OffTarget() override;
+
 	//Axis Event
 private:
 	void OnMoveForward(float InAxis);
@@ -41,6 +44,9 @@ private:
 
 	void OnAim();
 	void OffAim();
+
+	void OnFire();
+	void OffFire();
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
