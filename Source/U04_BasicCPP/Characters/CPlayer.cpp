@@ -9,6 +9,7 @@
 #include "CAnimInstance.h"
 #include "CRifle.h"
 #include "Widgets/CAimWidget.h"
+#include "Widgets/CAutoFireWidget.h"
 
 ACPlayer::ACPlayer()
 {
@@ -45,6 +46,8 @@ ACPlayer::ACPlayer()
 
 	//Get Widget ClassRef
 	CHelpers::GetClass<UCAimWidget>(&AimWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'");
+	CHelpers::GetClass<UCAutoFireWidget>(&AutoFireWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_AutoFire.WB_AutoFire_C'");
+
 }
 
 void ACPlayer::BeginPlay()
@@ -70,6 +73,12 @@ void ACPlayer::BeginPlay()
 		AimWidget = CreateWidget<UCAimWidget, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
 		AimWidget->AddToViewport();
 		AimWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (!!AutoFireWidgetClass)
+	{
+		AutoFireWidget = CreateWidget<UCAutoFireWidget, APlayerController>(GetController<APlayerController>(), AutoFireWidgetClass);
+		AutoFireWidget->AddToViewport();
 	}
 
 	Super::BeginPlay();
@@ -100,6 +109,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
+
+	PlayerInputComponent->BindAction("AutoFire", EInputEvent::IE_Pressed, this, &ACPlayer::OnAutoFire);
 }
 
 void ACPlayer::GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutAimDirection)
@@ -214,6 +225,15 @@ void ACPlayer::OnFire()
 void ACPlayer::OffFire()
 {
 	Rifle->End_Fire();
+}
+
+void ACPlayer::OnAutoFire()
+{
+	CheckTrue(Rifle->IsFiring());
+
+	Rifle->ToggleAutoFire();
+
+	Rifle->IsAutoFire() ? AutoFireWidget->OnAutoFire() : AutoFireWidget->OffAutoFire();
 }
 
 void ACPlayer::SetBodyColor(FLinearColor InColor)

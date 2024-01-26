@@ -25,6 +25,10 @@ public:
 	FORCEINLINE bool IsEquipped() { return bEquipped; }
 	FORCEINLINE bool IsAiming() { return bAiming; }
 
+	FORCEINLINE bool IsFiring() { return bFiring; }
+	FORCEINLINE bool IsAutoFire() { return bAutoFire; }
+	FORCEINLINE void ToggleAutoFire() {  bAutoFire = !bAutoFire; }
+
 public:
 	void Equip();
 	void Begin_Equip();
@@ -44,6 +48,12 @@ public:
 
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		float PitchSpeed = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		float LimitPitch = 0.1f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HolsterSocket = "Holster_Rifle";
 
@@ -59,6 +69,24 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 		TSubclassOf<UCameraShake> ShakeClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		TSubclassOf<class ACBullet> BulletClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* MuzzleParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* EjectParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* ImpactParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class USoundCue* FireSoundCue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UMaterialInstanceConstant* DecalMaterial;
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
@@ -70,4 +98,9 @@ private:
 	bool bEquipped;  //Used In AnimInstance
 	bool bAiming;	 //Is R-Button Pressed
 	bool bFiring;	 //Is L-Button Pressed
+	bool bAutoFire;	 //Is 'B' Button Toggle
+
+	FTimerHandle AutoFireTimer;
+
+	float CurrentPitch;
 };

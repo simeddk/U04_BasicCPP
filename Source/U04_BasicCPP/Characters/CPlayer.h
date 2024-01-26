@@ -48,6 +48,8 @@ private:
 	void OnFire();
 	void OffFire();
 
+	void OnAutoFire();
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ZoomIn();
@@ -71,11 +73,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UCAimWidget> AimWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UCAutoFireWidget> AutoFireWidgetClass;
+
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;
 	class UMaterialInstanceDynamic* LogoMaterial;
 
 	class ACRifle* Rifle;
+
 	class UCAimWidget* AimWidget;
+	class UCAutoFireWidget* AutoFireWidget;
 	
 };
