@@ -1,6 +1,7 @@
 #include "CRifle.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/DecalComponent.h"
 #include "Engine/StaticMeshActor.h"
@@ -100,7 +101,7 @@ void ACRifle::Equip()
 	CheckTrue(bEquipped);
 
 	bEquipping = true;
-	OwnerCharacter->PlayAnimMontage(GrabMontage);
+	OwnerCharacter->PlayAnimMontage(GrabMontage, 1.5f);
 }
 
 void ACRifle::Begin_Equip()
@@ -108,6 +109,9 @@ void ACRifle::Begin_Equip()
 	bEquipped = true;
 
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HandSocket);
+
+	OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void ACRifle::End_Equip()
@@ -121,7 +125,7 @@ void ACRifle::Unequip()
 	CheckTrue(bEquipping);
 
 	bEquipping = true;
-	OwnerCharacter->PlayAnimMontage(UngrabMontage);
+	OwnerCharacter->PlayAnimMontage(UngrabMontage, 1.5f);
 }
 
 void ACRifle::Begin_Unequip()
@@ -129,6 +133,9 @@ void ACRifle::Begin_Unequip()
 	bEquipped = false;
 
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocket);
+
+	OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void ACRifle::End_Unequip()
@@ -150,7 +157,7 @@ void ACRifle::Begin_Fire()
 {
 	CheckFalse(bEquipped);
 	CheckTrue(bEquipping);
-	CheckFalse(bAiming);
+	//CheckFalse(bAiming);
 	CheckTrue(bFiring);
 
 	bFiring = true;
